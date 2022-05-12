@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+        <title>Index</title>
+        <script src="/webjars/jquery/jquery.min.js"></script>
+        <script src="/webjars/sockjs-client/sockjs.min.js"></script>
+        <script src="/webjars/stomp-websocket/stomp.min.js"></script>
+        <script src="app.js"></script>
+        <script id="code">
+            var DEBUG_FLAG = true;
+
+            function sendMessageBySocket()
+            {
+                var msg = $("#msg").val();
+
+                wsObj.send('{"from":"' + userId + '","msg":"'+msg+'"}');
+            }
+            function subfun() {
+                var formData = new FormData($("#Tform")[0]);
+                $.ajax({
+                    url : "/upload",
+                    type : "POST",
+                    data : formData,
+                    processData : false,
+                    contentType : false,
+                    async : false,
+                    success : function (data) {
+                        console.info(data);
+                    },
+                    error : function (data) {
+                        console.error(data);
+                    }
+                });
+                return false;
+            }
+            function login() {
+                var formData = new FormData($("#Lform")[0]);
+                var flag = false;
+                $.ajax({
+                    url : "/login",
+                    type : "POST",
+                    data : formData,
+                    processData : false,
+                    contentType : false,
+                    async : false,
+                    success : function (data) {
+                        obj = JSON.parse(data);
+                        if (obj.status === "true")flag = true;
+                        console.info(obj.msg);
+                    },
+                    error : function (data) {
+                        obj = JSON.parse(data);
+                        if (obj.status === "true")flag = true;
+                        console.info(obj.msg);
+                    }
+                });
+                if (flag) createWebSocket();
+                return false;
+            }
+
+        </script>
+    </head>
+    <body>
+
+   <form  id="Lform" method="post" action="/login" enctype="multipart/form-data">
+       id:<input type="text" name="userId" id="usr">
+       <br>
+        img:<input type="file" name="img">
+       <br>
+       <input type="button" value="login" onclick="login();">
+   </form>
+
+    <form method="post" id="Tform" action="/upload" enctype="multipart/form-data">
+        <div><input type="button" value="connect" onclick="createWebSocket();"></div>
+        <textarea id="debuggerInfo" cols="30" rows="10"></textarea>
+        <div>消息：<input type="button" value="发送消息" onclick="sendMessageBySocket();"></div>
+            <input type="text" id="msg">
+            <h1>文件上传页面</h1>
+           id:<input type="text" name="userId">
+            选择要上传的文件：<input type="file" name="file"><br>
+            <hr>
+            <input type="button" value="提交" onclick="subfun();">
+        </form>
+    </body>
+
+</html>
