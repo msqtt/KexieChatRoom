@@ -7,6 +7,7 @@ import com.example.websocket.model.OutMessage;
 import com.example.websocket.tools.CompressPic;
 import com.example.websocket.tools.JSONChange;
 import com.example.websocket.tools.TimeFormatter;
+import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -108,8 +108,15 @@ public class UploadController {
             saveDir.getParentFile().mkdirs();
         }
         try {
-            img.transferTo(saveDir);
-            CompressPic.CompressHead(headfilePath, id);
+            if (img.isEmpty()){
+                File sc = new File(headfilePath + "default.jpg");
+
+                Thumbnails.of(headfilePath + "default.jpg").outputQuality(0.9).scale(1f).outputFormat("jpg").toFile(headfilePath+id);
+            }
+            else {
+                img.transferTo(saveDir);
+                CompressPic.CompressHead(headfilePath, id);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

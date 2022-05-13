@@ -26,7 +26,6 @@ public class CompressPic {
     }
     public static void CompressHead(String path, String id) throws IOException {
 
-        System.out.println(id);
         BufferedImage image = ImageIO.read(new File(path + id + ".jpg"));
         if (image.getWidth() > 1080 || image.getHeight() > 1920) {
             Thumbnails.of(path + id + ".jpg").size(1920, 1080).outputQuality(0.9).outputFormat("jpg").toFile( path + id);
