@@ -72,6 +72,10 @@ public class WebSocketEndpoint {
    @OnMessage
    public void onMessage(String inJson, Session session) throws JsonProcessingException {
 
+        if (inJson.equals("ping")) {
+            session.getAsyncRemote().sendText("pong");
+            return;
+        }
         InMessage in = (InMessage) JSONChange.jsonToObj(inJson, new InMessage());
 
 

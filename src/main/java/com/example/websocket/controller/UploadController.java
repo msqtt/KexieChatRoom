@@ -14,6 +14,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -90,9 +92,11 @@ public class UploadController {
     @Value("${file.path.head}")
     private String headfilePath;
     @RequestMapping("/login")
-    public String login(@RequestParam("userId") String id, @RequestPart("img") MultipartFile img) {
+    public String login(@RequestParam("userId") String id, @RequestPart("img") MultipartFile img, HttpServletResponse res) {
         System.out.println("head form");
-        if (img.isEmpty()) return "{\"status\":\"false\",\"msg\":\"请上传头像\"}";
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.setHeader("Cache-Control", "no-cache");
+
         if (UserIdPool.User.contains(id)) return "{\"status\":\"false\",\"msg\":\"登录失败，该账户已经被注册过了\"}";
 
         UserIdPool.User.add(id);

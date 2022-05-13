@@ -8,6 +8,4 @@ public class InMessage {
 
     public InMessage() {
     }
-
-
 }
