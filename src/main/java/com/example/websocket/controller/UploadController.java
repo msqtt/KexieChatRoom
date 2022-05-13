@@ -19,6 +19,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 
 @RestController
@@ -28,13 +30,14 @@ public class UploadController {
     private String picfilePath;
 
     @PostMapping("/upload")
-    public String fileUpload(@RequestParam("userId") String userId, @RequestParam("file") MultipartFile file) {
+    public String fileUpload(@RequestParam("userId") String userId, @RequestParam("file") MultipartFile file) throws UnsupportedEncodingException {
         if (file.isEmpty()) return "null";
 
         System.out.println("pic form");
         String fileName = file.getOriginalFilename();
         String bassName = FilenameUtils.getBaseName(fileName);
         String lastIndex = FilenameUtils.getExtension(fileName);
+        bassName = URLEncoder.encode(bassName, "UTF-8");
 
         File tmp = new File(picfilePath + fileName);
         String path = tmp.getParentFile().getPath() + '/';
@@ -92,7 +95,7 @@ public class UploadController {
     @Value("${file.path.head}")
     private String headfilePath;
     @RequestMapping("/login")
-    public String login(@RequestParam("userId") String id, @RequestPart("img") MultipartFile img, HttpServletResponse res) {
+    public String login(@RequestParam("userId") String id, @RequestPart("img") MultipartFile img, HttpServletResponse res) throws UnsupportedEncodingException {
         System.out.println("head form");
         res.setHeader("Access-Control-Allow-Origin", "*");
         res.setHeader("Cache-Control", "no-cache");
@@ -101,8 +104,8 @@ public class UploadController {
 
         UserIdPool.User.add(id);
 
-
-        String headPath =  headfilePath + id + ".jpg";
+        String fileId = URLEncoder.encode(id, "UTF-8");
+        String headPath =  headfilePath + fileId + ".jpg";
         File saveDir = new File( headPath);
         if (!saveDir.getParentFile().exists()) {
             saveDir.getParentFile().mkdirs();
@@ -110,12 +113,11 @@ public class UploadController {
         try {
             if (img.isEmpty()){
                 File sc = new File(headfilePath + "default.jpg");
-
-                Thumbnails.of(headfilePath + "default.jpg").outputQuality(0.9).scale(1f).outputFormat("jpg").toFile(headfilePath+id);
+Thumbnails.of(headfilePath + "default.jpg").outputQuality(0.9).scale(1f).outputFormat("jpg").toFile(headfilePath+fileId);
             }
             else {
                 img.transferTo(saveDir);
-                CompressPic.CompressHead(headfilePath, id);
+                CompressPic.CompressHead(headfilePath, fileId);
             }
         } catch (IOException e) {
             e.printStackTrace();

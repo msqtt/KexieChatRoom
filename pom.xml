@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.example</groupId>
-    <artifactId>WebSocket</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>WebSocket</name>
-    <description>WebSocket</description>
+    <artifactId>kexieChatRoom</artifactId>
+    <version>1.0</version>
+    <name>kexieChatRoom</name>
+    <description>kexieChatRoom</description>
 
     <properties>
         <java.version>1.8</java.version>
