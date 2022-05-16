@@ -1,87 +1,633 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-        <title>Index</title>
-        <script src="/webjars/jquery/jquery.min.js"></script>
-        <script src="/webjars/sockjs-client/sockjs.min.js"></script>
-        <script src="/webjars/stomp-websocket/stomp.min.js"></script>
-        <script src="app.js"></script>
-        <script id="code">
-            var DEBUG_FLAG = true;
+<html lang="en">
 
-            function sendMessageBySocket()
-            {
-                var msg = $("#msg").val();
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>exam</title>
 
-                wsObj.send('{"from":"' + userId + '","msg":"'+msg+'"}');
-            }
-            function subfun() {
-                var formData = new FormData($("#Tform")[0]);
-                $.ajax({
-                    url : "/upload",
+    <link rel="stylesheet" href="index2.css" />
+   
+    <!-- <script src="https://cdn.staticfile.org/jquery/3.1.1/jquery.min.js"></script> -->
+
+    <script src="fun2.js"></script>
+    <script src="jq.min.js"></script>
+
+
+</head>
+
+<body>
+
+
+
+    <!-- 顶部 显示聊天室名字 与 人数 -->
+    <div id="chatTop"> </div>
+    <!-- 登录页面-->
+    <!-- 登录表单 -->
+    <form action="http://localhost:8080/login" id="form1" method="POST" enctype="multipart/form-data"
+        target="iframe" class="deng">
+      
+     <div class="box">   
+       
+         <input type="text" name="userId" id="uname" autocomplete="off" required>
+        </div>
+        <input type="file" name="img" id="in-img" hidden >
+        <!-- <input type="submit" name="in-sub" id="in-sub" value="登录"> -->
+        <input type="submit" id="in-sub" value="登录" class="btn">
+
+    </form>
+
+
+    <div id="getImg" class="touxiang">
+
+    </div>
+
+
+    <!--输入内容  "-->
+    <form action="http://localhost:8080/upload" id="form2" method="POST" enctype="multipart/form-data"
+        target="iframe">
+
+        <input type="text" id="userID" name="userId" hidden>
+
+        <!-- 文本内容 -->
+        <input  type="text" placeholder=" 提问... " id="input" autocomplete="off">
+
+        <!-- 图片内容 -->
+        <input type="file" name="file" id="con-img" autocomplete="off">
+        <!--发送请求-->
+        <input type="submit" id="con-sub" value="" >
+        <div id="jiaobiao">
+            <img src="jiaobiao.png" alt="" id="jiao">
+        </div>
+
+        <div id="photo">
+            <img src="photo.png" alt="" id="pp">
+        </div>
+    </form>
+
+
+
+    <iframe id="iframe" name="iframe" style="display:none;"></iframe>
+
+    <!--显示结果-->
+    <div class="cont">
+        <p id="ballone">
+            <img src="ball1.png" alt="">
+        </p>
+        <p id="balltwo">
+            <img src="ball2.png" alt="">
+        </p>
+        <p id="ballthree">
+            <img src="ball3.png" alt="">
+        </p>
+        <p id="ballfour">
+            <img src="ball4.png" alt="">
+        </p>
+    </div>
+
+    <script>
+        var uname = document.querySelector('#uname')
+        var inBtn = document.querySelector('#in-sub')
+        var input = document.querySelector('#input')
+        var msgImg = document.querySelector('#con-img')
+        var btnInput = document.querySelector('#con-sub')
+        var photo = document.querySelector("#photo")
+        var pp = document.querySelector("#pp")
+        var cont = document.querySelector('.cont')
+        var msgBtn = document.querySelector('#msg_btn')
+        const nameInput = document.querySelector('#userID')
+        const inFile = document.querySelector('#in-img')
+        const getImg = document.querySelector('#getImg')
+
+        var form1 = document.querySelector('#form1')
+        var form2 = document.querySelector('#form2')
+        var chatTop = document.querySelector('#chatTop')
+        // 距顶部高度
+        var childrenHeight = 0;
+       
+        const TYPE_IN = 1
+        const TYPE_OUT = 0
+        const TYPE_MSG = 2
+        const TYPE_img = 3
+        
+       
+        var bodyEle = document.body
+        bodyEle.style.fontSize = bodyEle.offsetHeight * 0.05 + 'px'
+        var bigbodyHeight = bodyEle.offsetHeight
+        var bigConHeight = cont.offsetHeight
+       
+        var balls = cont.querySelectorAll('p');
+
+        // 定义字符串数组，存储气泡类型
+        const msg_types = [];
+        msg_types[0] = 'dv_msg_msg';
+        msg_types[1] = 'dv_msg_type_2';
+        msg_types[2] = 'dv_msg_type_3';
+        msg_types[3] = 'dv_msg_type_4';
+        msg_types[4] = 'dv_msg_type_5';
+        msg_types[5] = 'dv_msg_type_6';
+
+        const bodyHeight = bodyEle.offsetHeight ;
+        const contHeight = bodyHeight*0.8
+       const contWidth = bodyEle.offsetWidth
+       const chatTOPHeight = bodyHeight*0.1
+       const form2Height = bodyHeight*0.1
+
+        // 点击登录
+        inBtn.addEventListener('click', function () {
+
+
+            
+            var formData = new FormData(form1);
+            var flag = false;
+            var ajObj = null;
+            $.ajax({
+                    url : "http://localhost:8080/login",
                     type : "POST",
                     data : formData,
                     processData : false,
                     contentType : false,
                     async : false,
-                    success : function (data) {
-                        console.info(data);
+                    success : function (e) {
+                        ajObj = JSON.parse(e);
+                        if (ajObj.status === "true")flag = true;
+                        console.info(ajObj.msg);
                     },
-                    error : function (data) {
-                        console.error(data);
+                    error : function (e) {
+                        ajObj = JSON.parse(e);
+                        if (ajObj.status === "true")flag = true;
+                        console.info(ajObj.msg);
                     }
                 });
+                
+            
+            if (!flag){
+                alert(ajObj.msg)
                 return false;
             }
-            function login() {
-                var formData = new FormData($("#Lform")[0]);
-                var flag = false;
-                $.ajax({
-                    url : "/login",
-                    type : "POST",
-                    data : formData,
-                    processData : false,
-                    contentType : false,
-                    async : false,
-                    success : function (data) {
-                        obj = JSON.parse(data);
-                        if (obj.status === "true")flag = true;
-                        console.info(obj.msg);
-                    },
-                    error : function (data) {
-                        obj = JSON.parse(data);
-                        if (obj.status === "true")flag = true;
-                        console.info(obj.msg);
-                    }
-                });
-                if (flag) createWebSocket();
-                return false;
+            
+
+            if(uname.value!='') {
+                //还未登录时，输入内容表单隐藏，登录后登录表单隐藏，输入内容表单出现
+            form1.style.display = 'none'
+            getImg.style.display = 'none'
+            form2.style.display = 'block'
+            photo.style.display = 'block'
+            chatTop.style.display = 'block'
+            
+
+            const unameValue = form1.uname.value
+            nameInput.value = unameValue
+
+            var wsString = 'ws://localhost:8080/ws/'
+            const ws = wsString + unameValue
+
+            // 创建 websocket 链接
+            var socket = new WebSocket(ws)
+
+            socket.addEventListener('open', function () {
+                heartCheck.reset().start();      //心跳检测重置
+                 console.log("连接成功!"+new Date().toLocaleString());
+
+            })
+            
+// 监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接
+
+            socket.addEventListener("close", function () {
+                heartCheck.reset().start(); //心跳检测重置
+                alert('您已断连，请刷新页面重新登录')
+                console.log("连接成功!" + new Date().toLocaleString());
+            });
+ 
+
+ 
+//心跳检测
+var heartCheck = {
+    timeout: 1000*60,        //1分钟发一次心跳
+    timeoutObj: null,
+    serverTimeoutObj: null,
+    reset: function(){
+        clearTimeout(this.timeoutObj);
+        clearTimeout(this.serverTimeoutObj);
+        return this;
+    },
+    start: function(){
+        var self = this;
+        this.timeoutObj = setTimeout(function(){
+            //这里发送一个心跳，后端收到后，返回一个心跳消息，
+            //onmessage拿到返回的心跳就说明连接正常
+            socket.send("ping");
+            self.serverTimeoutObj = setTimeout(function(){
+                //如果超过一定时间还没重置，说明后端主动断开了
+                socket.close();   
+                  //如果onclose会执行reconnect，我们执行ws.close()就行了.如果直接执行reconnect 会触发onclose导致重连两次
+            }, self.timeout)
+        }, this.timeout)
+    }
+}
+
+// 主动给websocket 服务发送消息 
+function msg_send() {
+        var obj = {
+    from: uname.value,
+    msg: input.value
+}
+
+var json = JSON.stringify(obj);
+// console.log(obj)
+var value = input.value
+socket.send(json)
+input.value = ''
+
+
+}
+
+var flag = true
+btnInput.addEventListener('click',function() {
+    if(flag) {
+        flag = false
+        msg_send();
+        var timer = setTimeout(() => {
+           
+           flag = true
+        },3000)
+    }
+    else {
+        alert('发送频繁，请3s后再试')
+    }
+})
+
+ 
+
+
+// 接收 websocket 服务的数据
+var bigConHeight = cont.offsetHeight
+socket.addEventListener('message', function (e) {
+   
+      //拿到任何消息都说明当前连接是正常的
+      heartCheck.reset().start();  
+    if(e.data!='pong') {
+        console.log('211111');
+        var data = JSON.parse(e.data)
+    // 生成聊天消息盒子
+    var dv = document.createElement('div')
+    var dv_img = document.createElement('div')          // 头像
+    var dv_msg = document.createElement('div')  // msg
+    var dv_TN = document.createElement('div')    // time and name
+
+    chatTop.innerHTML = '科协小屋' + '(' + data.online + ')'
+
+    //  图片消息
+    if (data.msgType === TYPE_img) {
+        dv_TN.innerHTML = data.from
+        dv_TN.style.color = '#666666'
+        // 创建头像盒子
+        dv_img.classList.add("img")
+
+            dv_img.style.backgroundImage = 'url(http://localhost:8080/head/' + data.from + '.jpg)';
+      
+
+        // 图片消息资源链接
+        var imgSrc = 'http://localhost:8080' + data.msg
+        var dv_imgMsg = document.createElement('img')
+        dv_imgMsg.src = imgSrc
+        if (data.height < data.width) {
+            dv_imgMsg.classList.add('msg_img1')
+        }
+        else if (data.height > data.width) {
+            dv_imgMsg.classList.add('msg_img3')
+        }
+        else {
+            dv_imgMsg.classList.add('msg_img2')
+        }
+        msgImg.value = ''
+       
+    
+    }
+    // 文字消息
+    else if (data.msgType === TYPE_MSG) {
+
+        dv_TN.innerText = data.from
+        dv_TN.style.color = '#666666'
+        // 头像盒子
+        dv_img.classList.add("img")
+
+        dv_img.style.backgroundImage = 'url(http://localhost:8080/head/' + data.from + '.jpg)';
+        // 消息盒子
+        dv_msg.innerText = data.msg
+        //设置气泡
+        var random = Math.floor(Math.random() * 6)
+        dv_msg.classList.add(msg_types[random])
+        if (random == 3) {
+            var dv_line = document.createElement('div')
+
+            dv_msg.dataset.word = data.msg
+            if(dv_msg.offsetHeight>cont.offsetHeight * 0.1 
+            ) {
+                dv_msg.appendChild(dv_line)
+                dv_line.classList.add('white');
+           
             }
 
-        </script>
-    </head>
-    <body>
+        }
 
-   <form  id="Lform" method="post" action="/login" enctype="multipart/form-data">
-       id:<input type="text" name="userId" id="usr">
-       <br>
-        img:<input type="file" name="img">
-       <br>
-       <input type="button" value="login" onclick="login();">
-   </form>
+    }
+    else if (data.msgType === TYPE_IN) {
+      
+        dv_msg.innerHTML = data.from + ' ' + '进入科协小屋' + ' ' + data.time
+        dv_msg.classList.add('dv_msg_userIn')
+        dv.classList.add('dv_userIn')
+        dv_msg.style.width = textWidth + 'px'  ;
 
-    <form method="post" id="Tform" action="/upload" enctype="multipart/form-data">
-        <div><input type="button" value="connect" onclick="createWebSocket();"></div>
-        <textarea id="debuggerInfo" cols="30" rows="10"></textarea>
-        <div>消息：<input type="button" value="发送消息" onclick="sendMessageBySocket();"></div>
-            <input type="text" id="msg">
-            <h1>文件上传页面</h1>
-           id:<input type="text" name="userId">
-            选择要上传的文件：<input type="file" name="file"><br>
-            <hr>
-            <input type="button" value="提交" onclick="subfun();">
-        </form>
-    </body>
+    }
+
+    // 空消息不发送
+
+    if (data.msgType === TYPE_img) {
+        dv_msg.appendChild(dv_imgMsg)
+
+    }
+    if (data.msg != '' || data.msgType === TYPE_IN) {
+        cont.appendChild(dv)
+        dv.appendChild(dv_img)
+        dv.appendChild(dv_msg)
+        dv.appendChild(dv_TN)
+        dv.style.marginTop = dv_TN.offsetHeight * 0.3 + 'px'
+
+    }
+
+
+    //实现聊天的结构
+
+
+
+    //顶部盒子文字大小 和文字居中
+    chatTop.style.lineHeight = chatTop.offsetHeight + 'px'
+    chatTop.style.fontSize = chatTop.offsetHeight / 3 + 'px'
+    //头像大小 TN msg 盒子 位置和字体大小 
+    dv_img.style.width = cont.offsetHeight * 0.1 + 'px'
+    dv_img.style.height = cont.offsetHeight * 0.1 + 'px'
+    dv_TN.style.top = -(dv_img.offsetHeight) * 0.1 + 'px'
+    dv_TN.style.fontSize = dv_img.offsetHeight * 0.4 + 'px'
+    dv_msg.style.fontSize = dv_img.offsetHeight * 0.5 + 'px'
+
+    cont.classList.add('contbg')
+
+
+    //设置当消息内容超过消息盒子宽度时自动换行
+    dv_msg.style.wordbBreak = 'break-all';
+    dv_msg.style.wordWrap = 'break-word';
+
+    // if (dv_msg.offsetWidth > dv_img.offsetWidth * 5) {
+
+    //     dv_msg.style.width = dv_img.offsetWidth * 5 + 'px'
+    // }
+
+    //当文本内容大于某宽度时，就固定成该宽度
+    let dom = document.createElement('span');
+    dom.style.display = 'inline-block'
+    dom.innerText = dv_msg.innerText;
+    dom.style.fontSize = dv_msg.style.fontSize
+    document.body.appendChild(dom)
+    var textWidth = dom.clientWidth
+    // if (bodyEle.offsetWidth > 1024) {
+    //     if (textWidth > dv_img.offsetWidth * 8 ) {
+    //         dv_msg.style.width = dv_img.offsetWidth * 8 + 'px'
+    //     }
+    // }
+    // else {
+    //     if (textWidth > dv_img.offsetWidth * 5) {
+    //         dv_msg.style.width = dv_img.offsetWidth * 5 + 'px'
+    //     }
+    // }
+
+    document.body.removeChild(dom)
+
+
+
+    if (dv_msg.innerHTML == '') {
+        dv_msg.style.height = 0
+    }
+    else {
+        dv_msg.style.height = dv_msg.offsetHeight + 'px'
+
+    }
+
+
+
+    if (dv.style.height != dv_msg.offsetHeight) {
+        dv.style.height = dv_TN.offsetHeight + dv_msg.offsetHeight + dv_img.offsetHeight * 0.3 + 'px'
+    }
+    else {
+        dv.style.height = dv_TN.offsetHeight + dv_msg.offsetHeight + 'px'
+    }
+
+
+                //头像 tn msg 的位置
+
+    dv.style.position = 'relative'
+
+    dv_TN.style.position = 'absolute'
+    dv_img.style.position = 'absolute'
+    dv_msg.style.position = 'absolute'
+    if (dv_msg.innerHTML != '') {
+        dv_TN.style.left = dv_img.offsetWidth * 1.4 + 'px'
+        //dv_TN.style.top = 
+    }
+
+    dv_img.style.marginLeft = 5 + 'px'
+    dv_img.style.marginTop = 10 + 'px'
+
+    var orgin = cont.offsetWidth
+    dv_msg.style.left = dv_img.offsetWidth * 1.4 + 'px'
+    var len = dv_msg.offsetLeft - dv_img.offsetLeft
+
+    // 移动
+  
+        if(bodyEle.offsetWidth>1000) {
+            if (data.msgType === TYPE_IN ) {
+        animate(dv, orgin, 
+        (cont.offsetWidth  - dv_msg.offsetWidth  )/2- dv_img.offsetWidth - 5,-10)
+    }   else {
+            animate(dv, orgin, dv_msg.offsetLeft - len,-10)
+    }
+        }
+        else {
+            if (data.msgType === TYPE_IN ) {
+        animate(dv, orgin,
+        (cont.offsetWidth - dv_msg.offsetWidth)/2- dv_img.offsetWidth - 5 ,-2)
+        console.log(dv.offsetWidth);
+            } else {
+            animate(dv, orgin, dv_msg.offsetLeft - len,-2)
+        }
+    }
+      
+
+    
+
+    dv_msg.style.top = dv_img.offsetHeight * 0.6 + 'px'
+
+
+    //实现当cont撑开后能滚动
+    childrenHeight += (dv.offsetHeight + dv_TN.offsetHeight);
+    if (childrenHeight >= cont.offsetHeight) {
+        cont.style.overflowY = 'scroll';
+        if(bodyEle.offsetWidth<3000) {
+            cont.scrollTop = cont.scrollHeight;    //实现发送内容滚动条就跳到底部
+        }
+       
+        cont.style.width = contWidth + 'px'
+    }
+    dv_img.style.marginLeft = 5 + 'px'
+    dv_img.style.marginTop = 10 + 'px'
+
+    var orgin = cont.offsetWidth
+    dv_msg.style.left = dv_img.offsetWidth * 1.4 + 'px'
+    var len = dv_msg.offsetLeft - dv_img.offsetLeft
+
+
+    //底部表单 设置
+    input.style.fontSize = form2.offsetHeight * 0.4 + 'px'
+    // btnInput.style.fontSize = form2.offsetHeight * 0.4 + 'px'
+
+    btnInput.style.width = btnInput.offsetHeight + 'px'
+    var jiaobiao = document.querySelector('#jiaobiao')
+    var jiao = document.querySelector('#jiao')
+    jiaobiao.onclick = function () {
+        btnInput.click();
+    }
+    jiao.style.height = btnInput.offsetHeight * 0.6 + 'px'
+    jiao.style.width = btnInput.offsetWidth * 0.6 + 'px'
+    jiaobiao.style.width = jiao.offsetWidth + 'px'
+
+    jiaobiao.style.top = (form2.offsetHeight - jiaobiao.offsetHeight) / 2 + 'px'
+
+    jiaobiao.style.right = 5 + (btnInput.offsetWidth - jiaobiao.offsetWidth) / 2 + 'px'
+
+    input.style.top = (form2.offsetHeight - input.offsetHeight) / 2 + 'px'
+    btnInput.style.top = (form2.offsetHeight - btnInput.offsetHeight) / 2 + 'px'
+    photo.style.top = (form2.offsetHeight - photo.offsetHeight) / 2 + 'px'
+    photo.style.width = photo.offsetHeight + 'px'
+
+    input.style.borderRadius = input.offsetHeight * 0.2 + 'px'
+
+    pp.style.height = photo.offsetHeight * 0.7 + 'px'
+    pp.style.width = photo.offsetHeight * 0.7 + 'px'
+    pp.style.top = photo.offsetHeight * 0.15 + 'px'
+    pp.style.left = photo.offsetHeight * 0.15 + 'px'
+
+    photo.style.left = 5 + 'px'
+
+    btnInput.style.right = 5 + 'px'
+    input.style.left = (form2.offsetWidth - input.offsetWidth - btnInput.offsetWidth - photo.offsetWidth) / 2 + photo.offsetWidth + 'px'
+    
+
+    
+    chatTop.style.height = chatTOPHeight + 'px'
+        form2.style.height = form2Height + 'px'
+        cont.style.height = contHeight + 'px'
+        cont.style.width = contWidth + 'px' 
+
+        cont.classList.add('contbg')
+   
+      
+    }
+             
+            })
+            }
+   
+
+
+
+   //背景的大小
+  
+   var bgtop ;
+    if (bodyEle.offsetWidth < 1300) {
+        cont.style.backgroundSize = cont.offsetWidth * 0.6 + 'px' + ' ' + cont.offsetWidth * 0.24 + 'px'
+        bgtop = (cont.offsetHeight - cont.offsetWidth * 0.24) / 2
+    }
+    else {
+        cont.style.backgroundSize = cont.offsetWidth * 0.3 + 'px' + ' ' + cont.offsetWidth * 0.12 + 'px'
+        bgtop = cont.offsetHeight - contWidth * 0.12
+    }
+    //球盒子的大小和 位置(未改) 隐藏显示
+    for (var i = 0; i < balls.length; i++) {
+        balls[i].classList.add('ball'+i)
+    }
+
+    for (var i = 0; i < balls.length; i++) {
+        balls[i].style.display = 'block'
+
+
+        if (bodyEle.offsetWidth < 1300) {
+            balls[i].style.height = balls[i].style.width = cont.offsetWidth * 0.3 + 'px'
+            switch (i) {
+                case 0:
+                    balls[0].style.top = bgtop * 0.8 + 'px'
+                    balls[0].style.left = contWidth * 0.23 + 'px'
+                case 1:
+                    balls[1].style.top = bgtop * 0.75 + 'px'
+                    balls[1].style.left =  contWidth  * 0.5 + 'px'
+                case 2:
+                    balls[2].style.top = bgtop * 1.5 + 'px'
+                    balls[2].style.left =  contWidth  * 0.12 + 'px'
+                case 3:
+                    balls[3].style.top = bgtop * 1.55 + 'px'
+                    balls[3].style.left =  contWidth  * 0.55 + 'px'
+            }
+        }
+        else {
+            switch (i) {
+             
+                case 0:
+                    balls[0].style.top = bgtop * 0.3 + 'px'
+                    balls[0].style.left =  contWidth  * 0.3 + 'px'
+                case 1:
+                    balls[1].style.top =  bgtop * 0.25 + 'px'
+                    balls[1].style.left = contWidth * 0.6 + 'px'
+                case 2:
+                    balls[2].style.top =  bgtop * 1 + 'px'
+                    balls[2].style.left =  contWidth * 0.35 + 'px'
+                case 3:
+                    balls[3].style.top =  bgtop * 1 + 'px'
+                    balls[3].style.left =  contWidth  * 0.55 + 'px'
+            }
+            balls[i].style.height = balls[i].style.width =  contWidth  * 0.1 + 'px'
+        }
+
+    }
+
+
+    photo.onclick = function () {
+        msgImg.click()
+    }
+
+
+  
+    $('#con-img').change(function (e) {
+                
+                var fileMsg = e.currentTarget.files
+                var fileName = fileMsg[0].name
+                if (fileName != '') {
+                   
+
+                   btnInput.click() ;
+           
+                        }
+                      
+                     })
+
+        })
+
+
+        getImg.addEventListener('click', function () {
+            inFile.click()
+        })
+
+
+ </script>
+
+</body>
 
 </html>

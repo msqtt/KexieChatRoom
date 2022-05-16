@@ -112,8 +112,7 @@ public class UploadController {
         }
         try {
             if (img.isEmpty()){
-                File sc = new File(headfilePath + "default.jpg");
-Thumbnails.of(headfilePath + "default.jpg").outputQuality(0.9).scale(1f).outputFormat("jpg").toFile(headfilePath+fileId);
+                Thumbnails.of(headfilePath + "default.jpg").outputQuality(0.9).scale(1f).outputFormat("jpg").toFile(headfilePath+fileId);
             }
             else {
                 img.transferTo(saveDir);

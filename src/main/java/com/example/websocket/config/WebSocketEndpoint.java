@@ -75,6 +75,7 @@ public class WebSocketEndpoint {
             session.getAsyncRemote().sendText("pong");
             return;
         }
+
         InMessage in = (InMessage) JSONChange.jsonToObj(inJson, new InMessage());
 
 
